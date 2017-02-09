@@ -13,7 +13,7 @@ import (
 type KycChaincode struct {
 }
 
-var KycIndexTxStr = "_KycIndexTxStr"
+var WorldState = "USER_KYC_DETAILS"
 
 type KycData struct {
 	USER_NAME           string    `json:"USER_NAME"`
@@ -141,13 +141,13 @@ func (t *KycChaincode) UpdateKycDetails(stub shim.ChaincodeStubInterface, args [
 // Query callback representing the query of a chaincode
 func (t *KycChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 
-    var kycId string
-    if len(args) != 2 {
-	return nil, errors.New("Incorrect number of arguments. Expecting name of the person to query")
-    }
+	var kycId string
+	if len(args) != 2 {
+		return nil, errors.New("Incorrect number of arguments. Expecting name of the person to query")
+	}
 
-    kycId = args[1]
-    if function == "search" {		
+	kycId = args[1]
+	if function == "search" {
 		return t.searchKYC(stub, kycId)
 	}
 
@@ -155,42 +155,41 @@ func (t *KycChaincode) Query(stub shim.ChaincodeStubInterface, function string, 
 }
 
 func (t *KycChaincode) searchKYC(stub shim.ChaincodeStubInterface, kycId string) ([]byte, error) {
-    var SearchKYCDetails []KycData
-    var SearchKYCDetailsNew []KycData
-    var kycFound bool
+	var SearchKYCDetails []KycData
+	var SearchKYCDetailsNew []KycData
+	var kycFound bool
 
-    kyctxasBytes, err := stub.GetState(KycIndexTxStr)
-    if err != nil {
+	kyctxasBytes, err := stub.GetState(WorldState)
+	if err != nil {
 		return nil, errors.New("Failed to get Transactions")
 	}
 
-    json.Unmarshal(kyctxasBytes, &SearchKYCDetails)
-    lengths := len(SearchKYCDetails)
+	json.Unmarshal(kyctxasBytes, &SearchKYCDetails)
+	lengths := len(SearchKYCDetails)
 
-    kycFound = false
-    for i:=1; i < lengths; i++{
-        obj := SearchKYCDetails[i]
-        if kycId == obj.USER_ID{
-            SearchKYCDetailsNew = append(SearchKYCDetailsNew, obj)
-            kycFound = true
-        }
-    }
+	kycFound = false
+	for i := 1; i < lengths; i++ {
+		obj := SearchKYCDetails[i]
+		if kycId == obj.USER_ID {
+			SearchKYCDetailsNew = append(SearchKYCDetailsNew, obj)
+			kycFound = true
+		}
+	}
 
-    if kycFound{
-        res, err := json.Marshal(SearchKYCDetailsNew)
+	if kycFound {
+		res, err := json.Marshal(SearchKYCDetailsNew)
 		if err != nil {
-		    return nil, errors.New("Failed to Marshal the required Obj")
+			return nil, errors.New("Failed to Marshal the required Obj")
 		}
 		return res, nil
-    }else {
+	} else {
 		res, err := json.Marshal("No Data found")
 		if err != nil {
-		    return nil, errors.New("Failed to Marshal the required Obj")
+			return nil, errors.New("Failed to Marshal the required Obj")
 		}
 		return res, nil
 	}
 
-    
 }
 
 func main() {
