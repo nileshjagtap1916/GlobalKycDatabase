@@ -107,7 +107,7 @@ func (t *KycChaincode) UpdateKycDetails(stub shim.ChaincodeStubInterface, args [
 		if UserId == obj.USER_ID {
 			//delete previous record from blockchain
 			KYCDetails[i] = KYCDetails[len(KYCDetails)-1] // Replace it with the last one.
-			KYCDetails = KYCDetails[:len(a)-1] 
+			KYCDetails = KYCDetails[:len(KYCDetails)-1] 
 			//KYCDetails = append(KYCDetails[:i], KYCDetails[i+1:]...)
 
 			//Insert new record in blockchain
