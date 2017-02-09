@@ -101,8 +101,16 @@ func (t *KycChaincode) UpdateKycDetails(stub shim.ChaincodeStubInterface, args [
 	}
 	json.Unmarshal(jsonAsBytes, &KYCDetails)
 	length := len(KYCDetails)
-
-	for i := 0; i < length; i++ {
+	kycFound = false
+	
+	y := KYCDetails[:0]
+	for _, n := range KYCDetails {
+	    if UserId == obj.USER_ID {
+		y = append(y, n)
+		kycFound = true
+	    }
+	}
+	/*for i := 0; i < length; i++ {
 		obj := KYCDetails[i]
 		if UserId == obj.USER_ID {
 			//delete previous record from blockchain
@@ -121,13 +129,13 @@ func (t *KycChaincode) UpdateKycDetails(stub shim.ChaincodeStubInterface, args [
 			KYCObj.KYC_BANK_NAME = args[2]
 			KYCObj.KYC_DOC_BLOB = args[3]
 			KYCObj.KYC_CREATE_DATE = time.Now().Local()
-			KYCObj.KYC_VALID_TILL_DATE = KYCObj.KYC_CREATE_DATE.AddDate(2,0,0)*/
+			KYCObj.KYC_VALID_TILL_DATE = KYCObj.KYC_CREATE_DATE.AddDate(2,0,0)
 
 			//KYCDetails = append(KYCDetails, KYCObj)
 			kycFound = true
 			//break
 		}
-	}
+	}*/
 
 	if kycFound {
 		return nil, nil
