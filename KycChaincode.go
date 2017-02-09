@@ -80,11 +80,56 @@ func (t *KycChaincode) InsertKycDetails(stub shim.ChaincodeStubInterface, args [
 // Query callback representing the query of a chaincode
 func (t *KycChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 
-	if len(args) != 1 {
+    var kycId string
+	if len(args) != 2 {
 		return nil, errors.New("Incorrect number of arguments. Expecting name of the person to query")
 	}
 
+    kycId = args[0]
+    if function == "search" {		
+		return t.searchKYC(stub, kycId)
+	}
+
 	return nil, nil
+}
+
+func (t *KycChaincode) searchKYC(stub shim.ChaincodeStubInterface, kycId string) ([]byte, error) {
+    var SearchKYCDetails []KycData
+    var SearchKYCDetailsNew []KycData
+    var kycFound bool
+
+    kyctxasBytes, err := stub.GetState(KycIndexTxStr)
+    if err != nil {
+		return nil, errors.New("Failed to get Transactions")
+	}
+
+    json.Unmarshal(kyctxasBytes, &SearchKYCDetails)
+    lengths := len(SearchKYCDetails)
+
+    kycFound = false
+    for i:=1; i < lengths; i++{
+        obj := SearchKYCDetails[i]
+        if kycId == obj.USER_ID{
+            SearchKYCDetailsNew = append(SearchKYCDetailsNew, obj)
+            kycFound = true
+        }
+    }
+
+    if kycFound{
+        res, err := json.Marshal(SearchKYCDetailsNew)
+		if err != nil {
+		    return nil, errors.New("Failed to Marshal the required Obj")
+		}
+		return res, nil
+    }else {
+		res, err := json.Marshal("No Data found")
+		if err != nil {
+		    return nil, errors.New("Failed to Marshal the required Obj")
+		}
+		return res, nil
+	}
+
+    
 }
 
 func main() {
