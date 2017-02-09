@@ -85,7 +85,7 @@ func (t *KycChaincode) Query(stub shim.ChaincodeStubInterface, function string, 
 	return nil, errors.New("Incorrect number of arguments. Expecting name of the person to query")
     }
 
-    kycId = args[0]
+    kycId = args[1]
     if function == "search" {		
 		return t.searchKYC(stub, kycId)
 	}
