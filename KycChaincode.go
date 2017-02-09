@@ -130,24 +130,16 @@ func (t *KycChaincode) UpdateKycDetails(stub shim.ChaincodeStubInterface, args [
 	}
 
 	if kycFound {
-		res, err := json.Marshal("Record successfully updated")
-		if err != nil {
-			return nil, errors.New("Failed to Marshal the required Obj")
-		}
-		return res, nil
+		return nil, nil
 	} else {
-		res, err := json.Marshal("No Data found")
-		if err != nil {
-			return nil, errors.New("Failed to Marshal the required Obj")
-		}
-		return res, nil
+		return nil, errors.New("No record found for UserId")
 	}
 
 }
 
 // Query callback representing the query of a chaincode
 func (t *KycChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
-
+	
 	var kycId string
 	if len(args) != 2 {
 		return nil, errors.New("Incorrect number of arguments. Expecting name of the person to query")
@@ -155,10 +147,14 @@ func (t *KycChaincode) Query(stub shim.ChaincodeStubInterface, function string, 
 
 	kycId = args[1]
 	if function == "search" {
-		return t.searchKYC(stub, kycId)
+		res,err := t.searchKYC(stub, kycId)
+		if err != nil {
+		return nil, errors.New("Search get fail.")
+		}
+		return res, nil
 	}
 
-	return nil, nil
+	//return nil, nil
 }
 
 func (t *KycChaincode) searchKYC(stub shim.ChaincodeStubInterface, kycId string) ([]byte, error) {
