@@ -29,9 +29,9 @@ func (t *KycChaincode) Init(stub shim.ChaincodeStubInterface, function string, a
 	var err error
 	// Initialize the chaincode
 
-	var EmptyKYC KycData
+	var EmptyKYC []KycData
 	jsonAsBytes, _ := json.Marshal(EmptyKYC)
-	err = stub.PutState(KycIndexTxStr, jsonAsBytes)
+	err = stub.PutState(WorldState, jsonAsBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -47,34 +47,95 @@ func (t *KycChaincode) Invoke(stub shim.ChaincodeStubInterface, function string,
 	if function == "InsertKycDetails" {
 		// Insert User's KYC data in blockchain
 		return t.InsertKycDetails(stub, args)
-	}
-	/*else if function == "UpdateKycDetails" {
+	} else if function == "UpdateKycDetails" {
 		// Update User's KYC data in blockchain
 		return t.UpdateKycDetails(stub, args)
-	}*/
+	}
 
 	return nil, errors.New("Received unknown function invocation")
 }
 
 func (t *KycChaincode) InsertKycDetails(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-	var KYCDetails KycData
+	var KYCDetails []KycData
+	var KYCObj KycData
 
 	if len(args) != 4 {
 		return nil, errors.New("Incorrect number of arguments. Need 3 arguments")
 	}
 
 	// Initialize the chaincode
-	KYCDetails.USER_NAME = args[0]
-	KYCDetails.USER_ID = args[1]
-	KYCDetails.KYC_BANK_NAME = args[2]
-	KYCDetails.KYC_DOC_BLOB = args[3]
-	KYCDetails.KYC_CREATE_DATE = time.Now().Local()
-	KYCDetails.KYC_VALID_TILL_DATE = KYCDetails.KYC_CREATE_DATE.AddDate(0, 0, 2)
+	KYCObj.USER_NAME = args[0]
+	KYCObj.USER_ID = args[1]
+	KYCObj.KYC_BANK_NAME = args[2]
+	KYCObj.KYC_DOC_BLOB = args[3]
+	KYCObj.KYC_CREATE_DATE = time.Now().Local()
+	KYCObj.KYC_VALID_TILL_DATE = KYCObj.KYC_CREATE_DATE.AddDate(0, 0, 2)
 
-	jsonAsBytes, _ := json.Marshal(KYCDetails)
-	stub.PutState(args[1], jsonAsBytes)
+	jsonAsBytes, err := stub.GetState(WorldState)
+	if err != nil {
+		return nil, errors.New("Failed to get consumer Transactions")
+	}
+	json.Unmarshal(jsonAsBytes, &KYCDetails)
 
+	KYCDetails = append(KYCDetails, KYCObj)
+	jsonAsBytes1, _ := json.Marshal(KYCDetails)
+
+	err = stub.PutState(WorldState, jsonAsBytes1)
+	if err != nil {
+		return nil, err
+	}
 	return nil, nil
+}
+
+func (t *KycChaincode) UpdateKycDetails(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	var KYCDetails []KycData
+	var KYCObj KycData
+	var UserId string
+	var kycFound bool
+
+	UserId = args[0]
+
+	jsonAsBytes, err := stub.GetState(WorldState)
+	if err != nil {
+		return nil, errors.New("Failed to get consumer Transactions")
+	}
+	json.Unmarshal(jsonAsBytes, &KYCDetails)
+	length := len(KYCDetails)
+
+	for i := 0; i < length; i++ {
+		obj := KYCDetails[i]
+		if UserId == obj.USER_ID {
+			//delete previous record from blockchain
+			KYCDetails = append(KYCDetails[:i], KYCDetails[i+1:]...)
+
+			//Insert new record in blockchain
+			KYCObj.USER_NAME = args[0]
+			KYCObj.USER_ID = args[1]
+			KYCObj.KYC_BANK_NAME = args[2]
+			KYCObj.KYC_DOC_BLOB = args[3]
+			KYCObj.KYC_CREATE_DATE = time.Now().Local()
+			KYCObj.KYC_VALID_TILL_DATE = KYCObj.KYC_CREATE_DATE.AddDate(0, 0, 2)
+
+			KYCDetails = append(KYCDetails, KYCObj)
+			kycFound = true
+			break
+		}
+	}
+
+	if kycFound {
+		res, err := json.Marshal("Record successfully updated")
+		if err != nil {
+			return nil, errors.New("Failed to Marshal the required Obj")
+		}
+		return res, nil
+	} else {
+		res, err := json.Marshal("No Data found")
+		if err != nil {
+			return nil, errors.New("Failed to Marshal the required Obj")
+		}
+		return res, nil
+	}
+
 }
 
 // Query callback representing the query of a chaincode
