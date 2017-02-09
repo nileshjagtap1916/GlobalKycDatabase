@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
@@ -15,12 +16,12 @@ type KycChaincode struct {
 var KycIndexTxStr = "_KycIndexTxStr"
 
 type KycData struct {
-	USER_NAME           string `json:"USER_NAME"`
-	USER_ID             string `json:"USER_ID"`
-	KYC_BANK_NAME       string `json:"KYC_BANK_NAME"`
-	KYC_CREATE_DATE     string `json:"KYC_CREATE_DATE"`
-	KYC_VALID_TILL_DATE string `json:"KYC_VALID_TILL_DATE"`
-	KYC_DOC_BLOB        string `json:"KYC_DOC_BLOB"`
+	USER_NAME           string    `json:"USER_NAME"`
+	USER_ID             string    `json:"USER_ID"`
+	KYC_BANK_NAME       string    `json:"KYC_BANK_NAME"`
+	KYC_CREATE_DATE     time.Time `json:"KYC_CREATE_DATE"`
+	KYC_VALID_TILL_DATE time.Time `json:"KYC_VALID_TILL_DATE"`
+	KYC_DOC_BLOB        string    `json:"KYC_DOC_BLOB"`
 }
 
 func (t *KycChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
@@ -67,6 +68,8 @@ func (t *KycChaincode) InsertKycDetails(stub shim.ChaincodeStubInterface, args [
 	KYCDetails.USER_ID = args[1]
 	KYCDetails.KYC_BANK_NAME = args[2]
 	KYCDetails.KYC_DOC_BLOB = args[3]
+	KYCDetails.KYC_CREATE_DATE = time.Now().Local()
+	KYCDetails.KYC_VALID_TILL_DATE = KYCDetails.KYC_CREATE_DATE.AddDate(0, 0, 2)
 
 	jsonAsBytes, _ := json.Marshal(KYCDetails)
 	stub.PutState(args[1], jsonAsBytes)
