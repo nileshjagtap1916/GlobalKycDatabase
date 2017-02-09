@@ -105,6 +105,7 @@ func (t *KycChaincode) UpdateKycDetails(stub shim.ChaincodeStubInterface, args [
 	
 	y := KYCDetails[:0]
 	for _, n := range KYCDetails {
+	    obj := KYCDetails[i]
 	    if UserId == obj.USER_ID {
 		y = append(y, n)
 		kycFound = true
