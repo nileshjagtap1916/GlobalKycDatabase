@@ -81,9 +81,9 @@ func (t *KycChaincode) InsertKycDetails(stub shim.ChaincodeStubInterface, args [
 func (t *KycChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 
     var kycId string
-	if len(args) != 2 {
-		return nil, errors.New("Incorrect number of arguments. Expecting name of the person to query")
-	}
+    if len(args) != 2 {
+	return nil, errors.New("Incorrect number of arguments. Expecting name of the person to query")
+    }
 
     kycId = args[0]
     if function == "search" {		
