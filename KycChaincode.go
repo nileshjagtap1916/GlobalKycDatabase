@@ -146,13 +146,13 @@ func (t *KycChaincode) Query(stub shim.ChaincodeStubInterface, function string, 
 	}
 
 	kycId = args[1]
-	if function == "search" {
-		res,err := t.searchKYC(stub, kycId)
-		if err != nil {
-		return nil, errors.New("Search get fail.")
-		}
-		return res, nil
+	//if function == "search" {
+	res,err := t.searchKYC(stub, kycId)
+	if err != nil {
+	return nil, errors.New("Search get fail.")
 	}
+	return res, nil
+	//}
 
 	//return nil, nil
 }
