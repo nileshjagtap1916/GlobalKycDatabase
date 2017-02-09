@@ -69,7 +69,7 @@ func (t *KycChaincode) InsertKycDetails(stub shim.ChaincodeStubInterface, args [
 	KYCObj.KYC_BANK_NAME = args[2]
 	KYCObj.KYC_DOC_BLOB = args[3]
 	KYCObj.KYC_CREATE_DATE = time.Now().Local()
-	KYCObj.KYC_VALID_TILL_DATE = KYCObj.KYC_CREATE_DATE.AddDate(0, 0, 2)
+	KYCObj.KYC_VALID_TILL_DATE = KYCObj.KYC_CREATE_DATE.AddDate(2, 0, 0)
 
 	jsonAsBytes, err := stub.GetState(WorldState)
 	if err != nil {
@@ -93,7 +93,7 @@ func (t *KycChaincode) UpdateKycDetails(stub shim.ChaincodeStubInterface, args [
 	var UserId string
 	var kycFound bool
 
-	UserId = args[0]
+	UserId = args[1]
 
 	jsonAsBytes, err := stub.GetState(WorldState)
 	if err != nil {
@@ -114,7 +114,7 @@ func (t *KycChaincode) UpdateKycDetails(stub shim.ChaincodeStubInterface, args [
 			KYCObj.KYC_BANK_NAME = args[2]
 			KYCObj.KYC_DOC_BLOB = args[3]
 			KYCObj.KYC_CREATE_DATE = time.Now().Local()
-			KYCObj.KYC_VALID_TILL_DATE = KYCObj.KYC_CREATE_DATE.AddDate(0, 0, 2)
+			KYCObj.KYC_VALID_TILL_DATE = KYCObj.KYC_CREATE_DATE.AddDate(2,0,0)
 
 			KYCDetails = append(KYCDetails, KYCObj)
 			kycFound = true
