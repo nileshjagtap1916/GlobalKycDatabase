@@ -106,7 +106,9 @@ func (t *KycChaincode) UpdateKycDetails(stub shim.ChaincodeStubInterface, args [
 		obj := KYCDetails[i]
 		if UserId == obj.USER_ID {
 			//delete previous record from blockchain
-			KYCDetails = append(KYCDetails[:i], KYCDetails[i+1:]...)
+			KYCDetails[i] = KYCDetails[len(KYCDetails)-1] // Replace it with the last one.
+			KYCDetails = KYCDetails[:len(a)-1] 
+			//KYCDetails = append(KYCDetails[:i], KYCDetails[i+1:]...)
 
 			//Insert new record in blockchain
 			KYCObj.USER_NAME = args[0]
@@ -142,7 +144,7 @@ func (t *KycChaincode) UpdateKycDetails(stub shim.ChaincodeStubInterface, args [
 func (t *KycChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 
 	var kycId string
-	if len(args) != 2 {
+	if len(args) != 1 {
 		return nil, errors.New("Incorrect number of arguments. Expecting name of the person to query")
 	}
 
@@ -158,7 +160,7 @@ func (t *KycChaincode) searchKYC(stub shim.ChaincodeStubInterface, kycId string)
 	var SearchKYCDetails []KycData
 	var SearchKYCDetailsNew []KycData
 	var kycFound bool
-
+	
 	kyctxasBytes, err := stub.GetState(WorldState)
 	if err != nil {
 		return nil, errors.New("Failed to get Transactions")
@@ -167,8 +169,16 @@ func (t *KycChaincode) searchKYC(stub shim.ChaincodeStubInterface, kycId string)
 	json.Unmarshal(kyctxasBytes, &SearchKYCDetails)
 	lengths := len(SearchKYCDetails)
 
+	if kycId == "" {
+		res, err := json.Marshal(SearchKYCDetails)
+		if err != nil {
+		return nil, errors.New("Failed to Marshal the required Obj")
+		}
+		return res, nil
+	}
+	
 	kycFound = false
-	for i := 1; i < lengths; i++ {
+	for i := 0; i < lengths; i++ {
 		obj := SearchKYCDetails[i]
 		if kycId == obj.USER_ID {
 			SearchKYCDetailsNew = append(SearchKYCDetailsNew, obj)
