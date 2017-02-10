@@ -119,6 +119,12 @@ func (t *KycChaincode) UpdateKycDetails(stub shim.ChaincodeStubInterface, args [
 		}
 	}
 
+	jsonAsBytes1, _ := json.Marshal(KYCDetails)
+
+	err = stub.PutState(WorldState, jsonAsBytes1)
+	if err != nil {
+		return nil, err
+	}
 	return nil, nil
 
 }
