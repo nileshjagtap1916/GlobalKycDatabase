@@ -89,7 +89,7 @@ func (t *KycChaincode) InsertKycDetails(stub shim.ChaincodeStubInterface, args [
 
 func (t *KycChaincode) UpdateKycDetails(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	var KYCDetails []KycData
-	var KYCObj KycData
+	//var KYCObj KycData
 	var UserId string
 	var kycFound bool
 
