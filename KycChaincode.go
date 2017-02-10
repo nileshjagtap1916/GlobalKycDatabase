@@ -107,15 +107,21 @@ func (t *KycChaincode) UpdateKycDetails(stub shim.ChaincodeStubInterface, args [
 		obj := KYCDetails[i]
 		if UserId == obj.USER_ID {
 			//delete previous record from blockchain
+			kycFound = true
+			KYCDetails = append(KYCDetails[:i], KYCDetails[i+1:]...)
+			length--
+		} else {
+			i++
+		
 			//KYCDetails[i] = KYCDetails[len(KYCDetails)-1] // Replace it with the last one.
 			//KYCDetails = KYCDetails[:len(KYCDetails)-1] 
 			//KYCDetails = append(KYCDetails[:i], KYCDetails[i+1:]...)
-			KYCDetails[i].USER_NAME = args[0]
+			/*KYCDetails[i].USER_NAME = args[0]
 			KYCDetails[i].USER_ID = args[1]
 			KYCDetails[i].KYC_BANK_NAME = args[2]
 			KYCDetails[i].KYC_DOC_BLOB = args[3]
 			KYCDetails[i].KYC_CREATE_DATE = time.Now().Local()
-			KYCDetails[i].KYC_VALID_TILL_DATE = KYCObj.KYC_CREATE_DATE.AddDate(2,0,0)
+			KYCDetails[i].KYC_VALID_TILL_DATE = KYCObj.KYC_CREATE_DATE.AddDate(2,0,0)*/
 			//Insert new record in blockchain
 			/*KYCObj.USER_NAME = args[0]
 			KYCObj.USER_ID = args[1]
@@ -125,7 +131,7 @@ func (t *KycChaincode) UpdateKycDetails(stub shim.ChaincodeStubInterface, args [
 			KYCObj.KYC_VALID_TILL_DATE = KYCObj.KYC_CREATE_DATE.AddDate(2,0,0)*/
 
 			//KYCDetails = append(KYCDetails, KYCObj)
-			kycFound = true
+			
 			//break
 		}
 	}
